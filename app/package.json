@@ -1,0 +1,26 @@
+{
+  "name": "python-quest-generator",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Themed Python Quest Generation web app (Next.js + Genkit + Firebase).",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit -p tsconfig.core.json",
+    "select": "tsx src/lib/quest/task-selection/cli.ts",
+    "grade": "tsx src/lib/quest/grading/cli.ts",
+    "github-verify": "tsx src/lib/quest/github-verify/cli.ts",
+    "seed": "tsx scripts/seed-tasks.ts"
+  },
+  "dependencies": {
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "comment-runtime-deps": "Framework layers (Genkit flow, Firestore store, server actions, Next.js UI) additionally require: next, react, react-dom, @genkit-ai/google-genai, genkit, firebase, and (dev) @playwright/test. These are intentionally not installed in the initial domain-core build; add them when implementing those phases (see specs/001-themed-quest-generation/tasks.md)."
+}
