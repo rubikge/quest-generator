@@ -40,7 +40,41 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+Constitution v1.0.0 — enforce the nine articles. Each gate below maps to an article;
+any unchecked box MUST be justified in the Complexity Tracking section or the plan cannot proceed.
+
+### Phase -1: Pre-Implementation Gates
+
+#### Library-First Gate (Article I)
+
+- [ ] Feature is structured as one or more standalone, independently testable libraries?
+- [ ] No feature logic implemented directly in application code without a library?
+
+#### CLI Interface Gate (Article II)
+
+- [ ] Each library exposes its functionality via a CLI (text in / text out, errors to stderr)?
+- [ ] JSON output supported for structured data exchange?
+
+#### Test-First Gate (Article III — NON-NEGOTIABLE)
+
+- [ ] Tests are written, user-approved, and confirmed to FAIL before any implementation?
+- [ ] Red-Green-Refactor cycle planned for every implementation task?
+
+#### Simplicity Gate (Article VII)
+
+- [ ] Using ≤3 projects?
+- [ ] No future-proofing?
+
+#### Anti-Abstraction Gate (Article VIII)
+
+- [ ] Using framework directly?
+- [ ] Single model representation?
+
+#### Integration-First Gate (Articles IV & IX)
+
+- [ ] Contracts defined?
+- [ ] Contract tests written?
+- [ ] Realistic environments used (real databases/services over mocks/stubs)?
 
 ## Project Structure
 
