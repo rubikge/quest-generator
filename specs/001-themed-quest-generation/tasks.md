@@ -148,7 +148,7 @@ incomplete repo → specific, actionable failure messages.
 - [ ] T036 [P] Playwright end-to-end happy-path test (theme → quest → solve 1–3 → deploy → win) in `app/tests/e2e/quest-journey.spec.ts`
 - [ ] T037 [P] Seed the task catalog with ≥3 coding tasks per level (beginner/intermediate/advanced) via `app/scripts/seed-tasks.ts` data files
 - [ ] T038 Audit and standardize user-facing error/feedback messages across all server actions for FR-016 (no generic/silent failures) in `app/src/app/actions.ts`
-- [ ] T039 [P] Add the separately-gated live Gemini smoke test for the `weaveQuest` flow (excluded from default CI per plan C2) in `app/tests/integration/weave-quest.live.test.ts`
+- [X] T039 [P] Add the separately-gated live Gemini smoke test for the `weaveQuest` flow (excluded from default CI per plan C2) in `app/tests/integration/weave-quest.live.test.ts`
 - [ ] T040 [P] Validate `quickstart.md` steps against the built app and update docs in `specs/001-themed-quest-generation/quickstart.md`
 - [ ] T041 Cutover: retire/remove the `kodolom/` prototype once parity is confirmed, updating any references
 
