@@ -81,6 +81,9 @@ export const SessionSchema = z
     sessionId: z.string().min(1),
     quest: QuestSchema.nullable(),
     progress: ProgressSchema,
+    // Per-mission generated input (keyed by mission order as a string), persisted so
+    // grading recomputes the expected output against the SAME input shown to the learner.
+    missionInputs: z.record(z.string(), z.string()).optional(),
     updatedAt: z.string().datetime(),
   })
   .superRefine((s, ctx) => {

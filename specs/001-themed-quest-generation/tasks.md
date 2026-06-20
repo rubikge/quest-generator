@@ -34,7 +34,7 @@ implementation and testing.
 **Purpose**: Initialize the project and tooling, generalizing the `kodolom/` prototype stack.
 
 - [ ] T001 Scaffold the Next.js (App Router) + React 19 + TypeScript project at `app/` (package.json, tsconfig.json, next.config.ts, tailwind config), porting baseline config from `kodolom/`
-- [ ] T002 [P] Configure Genkit with `@genkit-ai/google-genai` (model `googleai/gemini-2.5-flash`) in `app/src/ai/genkit.ts`
+- [X] T002 [P] Configure Genkit with `@genkit-ai/google-genai` (model `googleai/gemini-2.5-flash`) in `app/src/ai/genkit.ts`
 - [ ] T003 [P] Configure Firebase: `app/apphosting.yaml` (App Hosting) and Firestore client init in `app/src/lib/firebase.ts`
 - [ ] T004 [P] Configure test tooling: Vitest in `app/vitest.config.ts`, Playwright in `app/playwright.config.ts`, and Firestore emulator + npm scripts (`test`, `test:int`, `test:e2e`) in `app/package.json`
 - [ ] T005 [P] Add `app/.env.example` with `GEMINI_API_KEY` and configure linting/formatting (ESLint + Prettier)
@@ -50,16 +50,16 @@ implementation and testing.
 ### Tests for Foundational (write FIRST, must FAIL) ⚠️
 
 - [X] T006 [P] Unit tests for Zod model schemas (Task, Theme, Quest, Mission, Progress, Session) asserting `missions.length === 4`, level enum, and deployment-mission rules in `app/tests/unit/model.test.ts`
-- [ ] T007 [P] Integration test: Session document round-trip and `Session` schema validation against the Firestore emulator in `app/tests/integration/sessions.test.ts`
+- [X] T007 [P] Integration test: Session document round-trip and `Session` schema validation against the Firestore emulator in `app/tests/integration/sessions.test.ts`
 - [X] T008 [P] Unit tests for the solver registry: each `solverKey` resolves to `{ generateInput, solve }`, and ported prototype solvers produce expected outputs in `app/tests/unit/solver-registry.test.ts`
 
 ### Implementation for Foundational
 
 - [X] T009 [P] Define Zod schemas and shared types for Task, Theme, Quest, Mission, Progress, Session in `app/src/lib/quest/model/index.ts`
-- [ ] T010 Implement Firestore access for the `tasks` catalog (read/query by level) and `sessions` (read/write) in `app/src/lib/quest/store.ts` (depends on T009)
+- [X] T010 Implement Firestore access for the `tasks` catalog (read/query by level) and `sessions` (read/write) in `app/src/lib/quest/store.ts` (depends on T009)
 - [X] T011 [P] Implement the solver registry interface `{ generateInput, solve }` keyed by `solverKey` in `app/src/lib/quest/tasks/registry.ts`
 - [X] T012 [P] Port the three prototype solvers (`season-analysis`, `molecule-calc`, `mouse-rug`) and the deployment meta-mission from `kodolom/src/lib/tasks.ts` into `app/src/lib/quest/tasks/solvers/` (depends on T011)
-- [ ] T013 Create a Firestore seed script that loads curated tasks (taskId, title, statement, level, sourceUrl, solverKey) into the `tasks` collection in `app/scripts/seed-tasks.ts` (depends on T010, T012)
+- [X] T013 Create a Firestore seed script that loads curated tasks (taskId, title, statement, level, sourceUrl, solverKey) into the `tasks` collection in `app/scripts/seed-tasks.ts` (depends on T010, T012)
 
 **Checkpoint**: Model, persistence, and solver registry exist and pass foundational tests.
 
@@ -76,15 +76,15 @@ missions, an intro, and per-mission framing, all coding tasks matching the selec
 ### Tests for User Story 1 (write FIRST, must FAIL) ⚠️
 
 - [X] T014 [P] [US1] Unit tests for task selection (picks 3 coding tasks at the chosen level + 1 deployment slot; surfaces `INSUFFICIENT_TASKS` when pool < 3) in `app/tests/unit/task-selection.test.ts`
-- [ ] T015 [P] [US1] Contract test for the `weaveQuest` Genkit flow: valid input yields schema-valid output with 4 aligned missions; malformed output is rejected (model stubbed) in `app/tests/integration/weave-quest.test.ts`
-- [ ] T016 [P] [US1] Contract test for the `generateQuest` server action: returns a 4-mission quest at the requested level, `INSUFFICIENT_TASKS` on a thin pool, and resets `progress.currentMission` to 1 (Firestore emulator) in `app/tests/integration/generate-quest.test.ts`
+- [X] T015 [P] [US1] Contract test for the `weaveQuest` Genkit flow: valid input yields schema-valid output with 4 aligned missions; malformed output is rejected (model stubbed) in `app/tests/integration/weave-quest.test.ts`
+- [X] T016 [P] [US1] Contract test for the `generateQuest` server action: returns a 4-mission quest at the requested level, `INSUFFICIENT_TASKS` on a thin pool, and resets `progress.currentMission` to 1 (Firestore emulator) in `app/tests/integration/generate-quest.test.ts`
 
 ### Implementation for User Story 1
 
 - [X] T017 [P] [US1] Implement the task-selection library with a JSON CLI entrypoint in `app/src/lib/quest/task-selection/index.ts` and `app/src/lib/quest/task-selection/cli.ts` (depends on T010)
-- [ ] T018 [US1] Implement the `weaveQuest` Genkit flow (typed Zod input/output, narrative-only) in `app/src/ai/flows/weave-quest.ts` (depends on T002, T009)
+- [X] T018 [US1] Implement the `weaveQuest` Genkit flow (typed Zod input/output, narrative-only) in `app/src/ai/flows/weave-quest.ts` (depends on T002, T009)
 - [X] T019 [US1] Implement quest composition that binds authoritative DB tasks with model narrative into a `Quest` in `app/src/lib/quest/assemble.ts` (depends on T017, T018)
-- [ ] T020 [US1] Implement the `generateQuest` server action (select → weave → compose → persist session) in `app/src/app/actions.ts` (depends on T019, T010)
+- [X] T020 [US1] Implement the `generateQuest` server action (select → weave → compose → persist session) in `app/src/app/actions.ts` (depends on T019, T010)
 - [ ] T021 [US1] Build the startup UI (theme input + level selection + generate) in `app/src/app/page.tsx` and a selection component in `app/src/components/quest-setup.tsx` (depends on T020)
 - [ ] T022 [US1] Render the generated quest intro and first mission, with the `INSUFFICIENT_TASKS`/generation-error states (FR-018) in `app/src/app/quest/page.tsx` (depends on T020)
 
@@ -103,12 +103,12 @@ an incorrect answer shows a clear message and permits retry.
 ### Tests for User Story 2 (write FIRST, must FAIL) ⚠️
 
 - [X] T023 [P] [US2] Unit tests for the grading library (trimmed output comparison; empty/malformed input handled gracefully) in `app/tests/unit/grading.test.ts`
-- [ ] T024 [P] [US2] Contract test for the `verifySolution` server action: correct output advances `currentMission`, incorrect keeps state and allows retry, locked/future mission is rejected (Firestore emulator) in `app/tests/integration/verify-solution.test.ts`
+- [X] T024 [P] [US2] Contract test for the `verifySolution` server action: correct output advances `currentMission`, incorrect keeps state and allows retry, locked/future mission is rejected (Firestore emulator) in `app/tests/integration/verify-solution.test.ts`
 
 ### Implementation for User Story 2
 
 - [X] T025 [P] [US2] Implement the grading library (output comparison) with a JSON CLI in `app/src/lib/quest/grading/index.ts` and `app/src/lib/quest/grading/cli.ts` (depends on T011)
-- [ ] T026 [US2] Implement the `verifySolution` server action (recall mission input, compute correct output via solver, compare, update progress per FR-010/FR-011) in `app/src/app/actions.ts` (depends on T025, T010)
+- [X] T026 [US2] Implement the `verifySolution` server action (recall mission input, compute correct output via solver, compare, update progress per FR-010/FR-011) in `app/src/app/actions.ts` (depends on T025, T010)
 - [ ] T027 [P] [US2] Build the mission play UI: narrative framing, statement, generated input display, and solution submission form in `app/src/components/mission-panel.tsx` and `app/src/components/solution-form.tsx` (depends on T022)
 - [ ] T028 [P] [US2] Build the progress tracker UI reflecting solved missions in `app/src/components/progress-tracker.tsx` (depends on T022)
 - [ ] T029 [US2] Wire per-mission input generation and submission feedback (success advances, failure retries) into the quest view in `app/src/app/quest/page.tsx` (depends on T026, T027, T028)
@@ -128,12 +128,12 @@ incomplete repo → specific, actionable failure messages.
 ### Tests for User Story 3 (write FIRST, must FAIL) ⚠️
 
 - [X] T030 [P] [US3] Unit tests for github-verify: README parsing across main/master + README.md/readme.md, all-ids-present pass, missing-id list, malformed URL, unreachable repo (recorded fixtures) in `app/tests/unit/github-verify.test.ts`
-- [ ] T031 [P] [US3] Integration test for `verifyDeployment`: real raw-README fetch for a known public repo plus the BAD_URL / MISSING_IDS / UNREACHABLE paths in `app/tests/integration/verify-deployment.test.ts`
+- [X] T031 [P] [US3] Integration test for `verifyDeployment`: real raw-README fetch for a known public repo plus the BAD_URL / MISSING_IDS / UNREACHABLE paths in `app/tests/integration/verify-deployment.test.ts`
 
 ### Implementation for User Story 3
 
 - [X] T032 [P] [US3] Implement the github-verify library (raw README fetch + task-id presence check) with a JSON CLI in `app/src/lib/quest/github-verify/index.ts` and `app/src/lib/quest/github-verify/cli.ts`
-- [ ] T033 [US3] Implement the `verifyDeployment` server action (validate URL, verify README, set `won` per FR-015, map failures to FR-016 messages) in `app/src/app/actions.ts` (depends on T032, T010)
+- [X] T033 [US3] Implement the `verifyDeployment` server action (validate URL, verify README, set `won` per FR-015, map failures to FR-016 messages) in `app/src/app/actions.ts` (depends on T032, T010)
 - [ ] T034 [US3] Build the final (deployment) mission UI with repo-URL submission and the win screen in `app/src/components/deployment-mission.tsx` and `app/src/components/win-screen.tsx` (depends on T029)
 - [ ] T035 [US3] Wire the deployment mission and victory conclusion into the quest view in `app/src/app/quest/page.tsx` (depends on T033, T034)
 

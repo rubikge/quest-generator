@@ -1,0 +1,10 @@
+rules_version = '2';
+// Permissive rules for the local Firestore emulator used by integration tests only.
+// Production rules are defined separately as part of deployment hardening.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
