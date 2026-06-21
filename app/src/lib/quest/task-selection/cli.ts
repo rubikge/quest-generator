@@ -2,8 +2,8 @@
  * CLI for the task-selection library (Constitution Article II: text/JSON in → JSON out).
  * Usage: echo '{"tasks":[...],"level":"beginner"}' | tsx src/lib/quest/task-selection/cli.ts
  */
-import { selectQuestTasks } from './index.js';
-import { TaskSchema, LevelSchema } from '../model/index.js';
+import { selectQuestTasks } from './index';
+import { TaskSchema, LevelSchema } from '../model/index';
 import { z } from 'zod';
 
 const InputSchema = z.object({ tasks: z.array(TaskSchema), level: LevelSchema });

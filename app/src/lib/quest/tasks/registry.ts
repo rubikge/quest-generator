@@ -1,4 +1,4 @@
-import { type Solver, seasonAnalysis, moleculeCalc, mouseRug } from './solvers/index.js';
+import { type Solver, seasonAnalysis, moleculeCalc, mouseRug } from './solvers/index';
 
 /**
  * Maps a Task's `solverKey` to its deterministic input generator + reference solver.

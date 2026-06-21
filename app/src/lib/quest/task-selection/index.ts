@@ -1,5 +1,5 @@
-import type { Level, Task } from '../model/index.js';
-import { hasSolver as defaultHasSolver } from '../tasks/registry.js';
+import type { Level, Task } from '../model/index';
+import { hasSolver as defaultHasSolver } from '../tasks/registry';
 
 export const CODING_MISSION_COUNT = 3;
 

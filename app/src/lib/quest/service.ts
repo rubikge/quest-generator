@@ -1,10 +1,10 @@
-import { type Level, type Progress, type Quest, type Session, type Theme, ThemeSchema } from './model/index.js';
-import { type QuestStore } from './store.js';
-import { selectQuestTasks } from './task-selection/index.js';
-import { assembleQuest, type QuestNarrative } from './assemble.js';
-import { gradeMission } from './grading/index.js';
-import { getSolver, hasSolver } from './tasks/registry.js';
-import { verifyDeployment as verifyRepo } from './github-verify/index.js';
+import { type Level, type Progress, type Quest, type Session, type Theme, ThemeSchema } from './model/index';
+import { type QuestStore } from './store';
+import { selectQuestTasks } from './task-selection/index';
+import { assembleQuest, type QuestNarrative } from './assemble';
+import { gradeMission } from './grading/index';
+import { getSolver, hasSolver } from './tasks/registry';
+import { verifyDeployment as verifyRepo } from './github-verify/index';
 
 /**
  * Application services: the logic behind the generateQuest / verifySolution /

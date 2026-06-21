@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { LevelSchema, type QuestNarrative } from '../../lib/quest/model/index.js';
+import { LevelSchema } from '../../lib/quest/model/index';
+import type { QuestNarrative } from '../../lib/quest/assemble';
 
 /**
  * weaveQuest: wrap four authoritative tasks in a single themed storyline. The model
@@ -76,7 +77,7 @@ export async function weaveQuest(input: WeaveQuestInput, generate: GenerateFn): 
 
 /** Production binding: call the real Gemini model via Genkit. */
 export async function liveWeaveQuest(input: WeaveQuestInput): Promise<QuestNarrative> {
-  const { ai } = await import('../genkit.js');
+  const { ai } = await import('../genkit');
   const generate: GenerateFn = (args) => ai.generate(args) as ReturnType<GenerateFn>;
   return weaveQuest(input, generate);
 }

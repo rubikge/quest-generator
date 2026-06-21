@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { createStore } from '../../src/lib/quest/store.js';
 import { generateQuest, type ServiceDeps } from '../../src/lib/quest/service.js';
-import { seedTasks } from '../../scripts/seed-tasks.js';
+import { seedTasks, SEED_TASKS } from '../../scripts/seed-tasks.js';
 import type { QuestNarrative } from '../../src/lib/quest/assemble.js';
 
 // T016 — generateQuest server-action logic against the emulator + stubbed flow.
@@ -19,7 +19,7 @@ const deps = (): ServiceDeps => ({
 
 describe('generateQuest (emulator + stub flow)', () => {
   beforeAll(async () => {
-    await seedTasks(); // 3 beginner tasks
+    await seedTasks(SEED_TASKS); // 3 beginner tasks only (advanced intentionally empty)
   });
 
   it('builds a 4-mission beginner quest and persists fresh progress', async () => {

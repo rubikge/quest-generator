@@ -1,6 +1,6 @@
 import { getApps, initializeApp } from 'firebase-admin/app';
 import { getFirestore, type Firestore } from 'firebase-admin/firestore';
-import { SessionSchema, TaskSchema, type Level, type Session, type Task } from './model/index.js';
+import { SessionSchema, TaskSchema, type Level, type Session, type Task } from './model/index';
 
 /**
  * Firestore access for the `tasks` catalog (read) and `sessions` (read/write).

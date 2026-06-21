@@ -1,0 +1,15 @@
+# Firebase App Hosting configuration for the Next.js backend.
+# https://firebase.google.com/docs/app-hosting/configure
+runConfig:
+  minInstances: 0
+  maxInstances: 2
+
+# Secrets/env wired in App Hosting (values stored in Secret Manager, not here):
+#   GEMINI_API_KEY        — Google AI key used by Genkit for narrative generation
+# Firestore access is server-side via firebase-admin (see src/lib/quest/store.ts); the
+# App Hosting runtime provides default credentials, so no client SDK init is required.
+env:
+  - variable: GEMINI_API_KEY
+    secret: GEMINI_API_KEY
+    availability:
+      - RUNTIME

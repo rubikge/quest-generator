@@ -3,7 +3,7 @@
  * Usage: tsx src/lib/quest/github-verify/cli.ts <repoUrl> <taskId> [<taskId> ...]
  * Performs a real network fetch of the repository README.
  */
-import { verifyDeployment } from './index.js';
+import { verifyDeployment } from './index';
 
 async function main() {
   const [repoUrl, ...taskIds] = process.argv.slice(2);

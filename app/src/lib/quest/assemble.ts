@@ -1,5 +1,5 @@
-import { QuestSchema, type Level, type Mission, type Quest, type Task } from './model/index.js';
-import { CODING_MISSION_COUNT } from './task-selection/index.js';
+import { QuestSchema, type Level, type Mission, type Quest, type Task } from './model/index';
+import { CODING_MISSION_COUNT } from './task-selection/index';
 
 /** Narrative produced by the weaveQuest flow: an overall intro plus per-mission framings. */
 export interface QuestNarrative {

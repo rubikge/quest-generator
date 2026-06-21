@@ -38,15 +38,27 @@ export const SEED_TASKS: Task[] = [
   },
 ];
 
-export async function seedTasks(): Promise<number> {
+// Fuller catalog with ≥3 coding tasks per level (T037). Intermediate/advanced reuse the
+// vetted solvers at higher levels until level-specific problems are authored.
+export const CATALOG: Task[] = [
+  ...SEED_TASKS,
+  { taskId: '757-i', title: 'Топливный расчёт (II)', statement: 'Как задача 757, повышенная сложность.', level: 'intermediate', solverKey: 'molecule-calc' },
+  { taskId: '907-i', title: 'Маскировка (II)', statement: 'Как задача 907, повышенная сложность.', level: 'intermediate', solverKey: 'mouse-rug' },
+  { taskId: '892-i', title: 'Циклы (II)', statement: 'Как задача 892, повышенная сложность.', level: 'intermediate', solverKey: 'season-analysis' },
+  { taskId: '757-a', title: 'Топливный расчёт (III)', statement: 'Как задача 757, высокая сложность.', level: 'advanced', solverKey: 'molecule-calc' },
+  { taskId: '907-a', title: 'Маскировка (III)', statement: 'Как задача 907, высокая сложность.', level: 'advanced', solverKey: 'mouse-rug' },
+  { taskId: '892-a', title: 'Циклы (III)', statement: 'Как задача 892, высокая сложность.', level: 'advanced', solverKey: 'season-analysis' },
+];
+
+export async function seedTasks(catalog: Task[] = CATALOG): Promise<number> {
   const db = getDb();
   const batch = db.batch();
-  for (const task of SEED_TASKS) {
+  for (const task of catalog) {
     const validated = TaskSchema.parse(task);
     batch.set(db.collection('tasks').doc(validated.taskId), validated);
   }
   await batch.commit();
-  return SEED_TASKS.length;
+  return catalog.length;
 }
 
 // Execute when run directly (tsx scripts/seed-tasks.ts).

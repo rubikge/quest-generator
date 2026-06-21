@@ -4,8 +4,8 @@
  *          | tsx src/lib/quest/grading/cli.ts
  * Or:    echo '{"expected":"YES","submitted":"YES"}' | tsx src/lib/quest/grading/cli.ts
  */
-import { gradeOutput, gradeMission } from './index.js';
-import { getSolver } from '../tasks/registry.js';
+import { gradeOutput, gradeMission } from './index';
+import { getSolver } from '../tasks/registry';
 
 async function readStdin(): Promise<string> {
   const chunks: Buffer[] = [];
