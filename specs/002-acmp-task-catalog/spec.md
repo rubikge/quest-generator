@@ -8,6 +8,15 @@
 
 **Input**: User description: "Tasks are stored in a database whose structure can fully hold tasks ported from https://acmp.ru/index.asp?main=alltasks, and the porting is executed. A task has a difficulty; when a learner chooses beginner / intermediate / expert, all available tasks are sorted by difficulty and split into three parts, and three tasks are chosen at random from the first / second / third part to embed into the quest. The UI displays a task completely — with illustrations if any (illustrations may need to be stored), input/output examples, and input/output data requirements. In the final stage the README must contain links to the original tasks (e.g., https://acmp.ru/index.asp?main=task&id_task=1)."
 
+## Clarifications
+
+### Session 2026-06-21
+
+- Q: When a learner plays a coding mission, what is their submitted output graded against? → A: All ≥30 generated test inputs — the submission is correct only if the learner's output is correct for every generated test case.
+- Q: How is the language for displaying task content determined, and what is supported? → A: Auto-detect from the language the learner wrote their theme/request in (fall back to English when detection is not confident).
+- Q: How should the learner's submitted output be compared to the expected output? → A: Whitespace-tolerant — trim trailing whitespace per line and at the end; otherwise exact.
+- Q: Before an imported task is marked ready, how is the stored reference solution's correctness validated? → A: It must reproduce ACMP's published worked example(s) AND be confirmed by a curator before the task goes live.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Populate the task catalog from the ACMP source (Priority: P1)
@@ -173,7 +182,9 @@ and confirm it does not.
 - **FR-005**: The system MUST store and retrieve task illustrations so they can be displayed
   alongside the task; tasks without illustrations MUST be fully usable.
 - **FR-006**: For each imported task the system MUST store the means to determine the correct
-  output for any valid input to that task (the reference solution algorithm).
+  output for any valid input to that task (the reference solution algorithm). A task MUST be marked
+  ready for use only after its reference solution reproduces the task's published worked example(s)
+  AND a curator confirms it; tasks failing either check are flagged not ready, not offered in quests.
 - **FR-007**: For each imported task the system MUST store the means to generate at least thirty
   distinct test cases that cover both typical inputs and edge cases (the test-generation algorithm).
 - **FR-008**: The system MUST record each task's ACMP difficulty value and use it as the ranking
@@ -189,9 +200,10 @@ and confirm it does not.
   than three tasks, rather than producing an incomplete quest.
 - **FR-013**: The system MUST display a task completely: its statement, any illustrations, its
   input/output examples, and its input and output data requirements.
-- **FR-014**: The system MUST present the displayed task content in the language of the learner's
-  request, rewriting/translating the canonical English content as part of quest generation, while
-  preserving the meaning and the exact input/output rules.
+- **FR-014**: The system MUST present the displayed task content in a language auto-detected from
+  the language the learner wrote their theme/request in, rewriting/translating the canonical English
+  content as part of quest generation while preserving meaning and the exact input/output rules.
+  When the request language cannot be confidently detected, the system MUST fall back to English.
 - **FR-015**: The final-stage deployment instructions MUST direct the learner to include, in their
   repository README, links to the original source pages of the quest's tasks.
 - **FR-016**: The system MUST verify that the winning README contains links to the original source
@@ -202,6 +214,12 @@ and confirm it does not.
 - **FR-018**: The import MUST skip or flag any source task it cannot fully parse, translate, or
   whose required test battery or illustrations cannot be produced, without corrupting the rest of
   the catalog.
+- **FR-019**: The system MUST provide the learner the task's full set of generated test inputs and
+  MUST grade a submission as correct only when the learner's output is correct for every one of the
+  task's ≥30 generated test cases; if any case is wrong, the submission is rejected.
+- **FR-020**: When comparing a learner's output to the expected output, the system MUST be
+  whitespace-tolerant — trimming trailing whitespace on each line and at the end of the output —
+  while otherwise requiring an exact match.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -251,11 +269,13 @@ and confirm it does not.
   a correct reference solution and a robust test battery can be authored/validated per task; the
   database structure, however, is built to hold the full ACMP catalog for later porting.
 - Tasks are stored canonically in English (translated from the ACMP source during import). At quest
-  generation, the task content is rewritten into the language of the learner's request and wrapped
-  in the chosen theme; identical wording across runs is not required.
-- Grading uses the stored reference solution to compute the correct output and the stored
-  test-generation algorithm to validate robustness (≥30 tests, edge cases included); the platform
-  still does not execute the learner's own code (output comparison only), consistent with feature 001.
+  generation, the task content is rewritten into the language auto-detected from the learner's
+  theme/request (English fallback) and wrapped in the chosen theme; identical wording across runs is
+  not required.
+- Grading uses the stored reference solution to compute the correct outputs for the task's ≥30
+  generated test cases; the learner is provided those inputs and is graded correct only if their
+  output matches for all of them (whitespace-tolerant comparison per FR-020). The platform still
+  does not execute the learner's own code (output comparison only), consistent with feature 001.
 - Difficulty ranking uses ACMP's own per-task complexity value; ties are broken deterministically so
   the three-way split is stable and every task lands in exactly one tier.
 - The three-way split is recomputed over all available tasks at selection time, so adding tasks later
