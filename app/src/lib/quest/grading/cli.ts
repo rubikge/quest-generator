@@ -1,11 +1,11 @@
 /**
  * CLI for the grading library (Constitution Article II: text/JSON in → JSON out).
- * Usage: echo '{"solverKey":"season-analysis","input":"1\n7","submitted":"Winter\nSummer"}' \
+ * Usage:
+ *   echo '{"solverSource":"function solve(i){return i.toUpperCase()}","input":"ab","submitted":"AB"}' \
  *          | tsx src/lib/quest/grading/cli.ts
- * Or:    echo '{"expected":"YES","submitted":"YES"}' | tsx src/lib/quest/grading/cli.ts
+ *   echo '{"expected":"YES","submitted":"YES"}' | tsx src/lib/quest/grading/cli.ts
  */
 import { gradeOutput, gradeMission } from './index';
-import { getSolver } from '../tasks/registry';
 
 async function readStdin(): Promise<string> {
   const chunks: Buffer[] = [];
@@ -17,11 +17,11 @@ async function main() {
   try {
     const data = JSON.parse(await readStdin());
     const result =
-      typeof data.solverKey === 'string'
-        ? gradeMission({ solverKey: data.solverKey, input: data.input ?? '', submitted: data.submitted ?? '' }, { getSolver })
+      typeof data.solverSource === 'string'
+        ? gradeMission({ solverSource: data.solverSource, input: data.input ?? '', submitted: data.submitted ?? '' })
         : gradeOutput({ expected: data.expected ?? '', submitted: data.submitted ?? '' });
     process.stdout.write(JSON.stringify(result) + '\n');
-    process.exit(result.correct ? 0 : 1);
+    process.exit('correct' in result && result.correct ? 0 : 1);
   } catch (err) {
     process.stderr.write(`grading error: ${(err as Error).message}\n`);
     process.exit(2);

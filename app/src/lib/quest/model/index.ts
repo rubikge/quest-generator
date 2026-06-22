@@ -5,19 +5,39 @@ import { z } from 'zod';
  * one representation per entity, shared across UI, server actions, flow, and store).
  */
 
-export const LevelSchema = z.enum(['beginner', 'intermediate', 'advanced']);
+/** The learner's chosen skill level; maps to a complexity tier at selection time. */
+export const LevelSchema = z.enum(['beginner', 'intermediate', 'expert']);
 export type Level = z.infer<typeof LevelSchema>;
 
-/** A real, pre-authored coding problem from the catalog. Grading code lives in the
- * solver registry keyed by `solverKey`; it is NOT stored on the document. */
+/** A worked input/output example (stored verbatim from the source; never translated). */
+export const ExampleSchema = z.object({ input: z.string(), output: z.string() });
+export type Example = z.infer<typeof ExampleSchema>;
+
+/** Runtime/language of a task's stored solution + test-generation code (v1: JavaScript). */
+export const RuntimeSchema = z.enum(['js']);
+export type Runtime = z.infer<typeof RuntimeSchema>;
+
+/**
+ * A real, pre-authored coding problem ported from ACMP. Presentation, selection, attribution data
+ * AND the executable reference logic (solution + test-generation algorithms, as code) all live on
+ * the document. The code is executed ONLY via the sandbox (research R2/R9) — never here, never in
+ * the database, and never as learner code.
+ */
 export const TaskSchema = z.object({
-  id: z.string().min(1).optional(), // Firestore document id (internal)
-  taskId: z.string().min(1), // public id used in the README win check
-  title: z.string().min(1),
-  statement: z.string().min(1),
-  level: LevelSchema,
-  sourceUrl: z.string().url().optional(),
-  solverKey: z.string().min(1),
+  id: z.string().min(1).optional(), // Firestore document id (internal); equals taskId
+  taskId: z.string().min(1), // public ACMP id, used in the README win check
+  sourceUrl: z.string().url(), // original ACMP task page (required for attribution / README links)
+  title: z.string().min(1), // English (translated on import)
+  statement: z.string().min(1), // English problem statement
+  inputFormat: z.string().min(1), // English "input data requirements"
+  outputFormat: z.string().min(1), // English "output data requirements"
+  examples: z.array(ExampleSchema).min(1), // verbatim worked examples
+  images: z.array(z.string()).default([]), // relative static-asset paths; may be empty
+  complexity: z.number().min(0), // ACMP complexity score; ranking key for tiers
+  runtime: RuntimeSchema,
+  solverSource: z.string().min(1), // reference solution as code: solve(input)->output
+  testGenSource: z.string().min(1), // test generator as code: generateTests()->TestCase[]
+  ready: z.boolean(), // true only after the readiness gate passes; selection uses ready only
 });
 export type Task = z.infer<typeof TaskSchema>;
 
@@ -33,17 +53,25 @@ export const MissionSchema = z
     order: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)]),
     kind: MissionKindSchema,
     taskId: z.string().min(1).nullable(),
-    solverKey: z.string().min(1).nullable(),
+    sourceUrl: z.string().url().nullable(),
     title: z.string().min(1),
     statement: z.string().min(1),
+    inputFormat: z.string().min(1).nullable(),
+    outputFormat: z.string().min(1).nullable(),
+    examples: z.array(ExampleSchema).nullable(),
+    images: z.array(z.string()),
     storyFraming: z.string().min(1),
   })
   .superRefine((m, ctx) => {
-    if (m.kind === 'coding' && (m.taskId === null || m.solverKey === null)) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'coding missions require taskId and solverKey' });
+    if (m.kind === 'coding') {
+      if (m.taskId === null || m.sourceUrl === null || m.inputFormat === null || m.outputFormat === null || m.examples === null) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'coding missions require taskId, sourceUrl, inputFormat, outputFormat, examples' });
+      }
     }
-    if (m.kind === 'deployment' && (m.taskId !== null || m.solverKey !== null)) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'deployment mission must have null taskId/solverKey' });
+    if (m.kind === 'deployment') {
+      if (m.taskId !== null || m.sourceUrl !== null || m.inputFormat !== null || m.outputFormat !== null || m.examples !== null) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'deployment mission must have null taskId/sourceUrl/inputFormat/outputFormat/examples' });
+      }
     }
   });
 export type Mission = z.infer<typeof MissionSchema>;
@@ -81,9 +109,11 @@ export const SessionSchema = z
     sessionId: z.string().min(1),
     quest: QuestSchema.nullable(),
     progress: ProgressSchema,
-    // Per-mission generated input (keyed by mission order as a string), persisted so
-    // grading recomputes the expected output against the SAME input shown to the learner.
+    // Per-mission generated test-battery input block (keyed by mission order as a string),
+    // persisted so grading recomputes the expected output against the SAME input shown.
     missionInputs: z.record(z.string(), z.string()).optional(),
+    // Language auto-detected from the learner's theme (English fallback); set at generation time.
+    detectedLanguage: z.string().min(1).optional(),
     updatedAt: z.string().datetime(),
   })
   .superRefine((s, ctx) => {
@@ -93,5 +123,5 @@ export const SessionSchema = z
   });
 export type Session = z.infer<typeof SessionSchema>;
 
-/** The fixed set of selectable Python levels. */
-export const LEVELS: Level[] = ['beginner', 'intermediate', 'advanced'];
+/** The fixed set of selectable skill levels. */
+export const LEVELS: Level[] = ['beginner', 'intermediate', 'expert'];

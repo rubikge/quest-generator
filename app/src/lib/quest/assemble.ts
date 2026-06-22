@@ -16,18 +16,25 @@ export interface AssembleQuestArgs {
   narrative: QuestNarrative;
 }
 
-/** Human-readable objective for the final deployment mission (research R5 / FR-013). */
-export function buildDeploymentStatement(taskIds: string[]): string {
+/**
+ * Human-readable objective for the final deployment mission (FR-013/FR-015). The README must list
+ * the solved task ids AND link each task's original ACMP source page.
+ */
+export function buildDeploymentStatement(tasks: Array<{ taskId: string; sourceUrl: string }>): string {
+  const ids = tasks.map((t) => t.taskId).join(', ');
+  const links = tasks.map((t) => t.sourceUrl).join('\n');
   return (
     'Deploy your completed work to a public GitHub repository, then update its README.md to ' +
-    `include your solved task ids: ${taskIds.join(', ')}. Submit the repository link to finish.`
+    `include your solved task ids: ${ids}, and a link to each task's original page:\n${links}\n` +
+    'Submit the repository link to finish.'
   );
 }
 
 /**
  * Compose a validated Quest from selected coding tasks (authoritative) and the woven
- * narrative (framing only). The model never alters task content — task statements/ids
- * come straight from the catalog; only `questIntro`/`storyFraming` come from the flow.
+ * narrative (framing only). The model never alters task content — task statements, examples,
+ * images, ids, and source URLs come straight from the catalog; only `questIntro`/`storyFraming`
+ * come from the flow.
  */
 export function assembleQuest(args: AssembleQuestArgs): Quest {
   if (args.codingTasks.length !== CODING_MISSION_COUNT) {
@@ -40,9 +47,13 @@ export function assembleQuest(args: AssembleQuestArgs): Quest {
       order,
       kind: 'coding',
       taskId: task.taskId,
-      solverKey: task.solverKey,
+      sourceUrl: task.sourceUrl,
       title: task.title,
       statement: task.statement,
+      inputFormat: task.inputFormat,
+      outputFormat: task.outputFormat,
+      examples: task.examples,
+      images: task.images,
       storyFraming: args.narrative.framings[order],
     };
   });
@@ -51,9 +62,13 @@ export function assembleQuest(args: AssembleQuestArgs): Quest {
     order: 4,
     kind: 'deployment',
     taskId: null,
-    solverKey: null,
+    sourceUrl: null,
     title: 'Final report',
-    statement: buildDeploymentStatement(args.codingTasks.map((t) => t.taskId)),
+    statement: buildDeploymentStatement(args.codingTasks.map((t) => ({ taskId: t.taskId, sourceUrl: t.sourceUrl }))),
+    inputFormat: null,
+    outputFormat: null,
+    examples: null,
+    images: [],
     storyFraming: args.narrative.framings[4],
   };
 

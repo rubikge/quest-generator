@@ -1,10 +1,15 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: (template, unversioned) → 1.0.0
-Bump rationale: Initial ratification. The constitution moved from an unfilled
+Version change: (template, unversioned) → 1.0.0 → 1.1.0
+Bump rationale (1.0.0): Initial ratification. The constitution moved from an unfilled
   placeholder template to a fully defined set of nine governing articles.
   Per semantic versioning this is the first stable release (MAJOR.MINOR.PATCH = 1.0.0).
+Amendment (1.1.0, 2026-06-21): Removed the Python-specific language mandate. The
+  implementation language is no longer constrained by the constitution (it is declared in
+  each plan); coding tasks presented to learners are language-agnostic. Renamed the document
+  from "Python Quest Generator Constitution" to "Quest Generator Constitution". MINOR bump:
+  a constraint was relaxed/clarified; no article was added or removed.
 
 Principles defined (9 articles):
   - I.   Library-First (new)
@@ -36,13 +41,13 @@ Templates requiring updates:
 Follow-up TODOs: none. RATIFICATION_DATE set to adoption date 2026-06-20.
 -->
 
-# Python Quest Generator Constitution
+# Quest Generator Constitution
 
 ## Core Principles
 
 ### I. Library-First
 
-Every feature in Python Quest Generator MUST begin its existence as a standalone library.
+Every feature in Quest Generator MUST begin its existence as a standalone library.
 No feature shall be implemented directly within application code without first being
 abstracted into a reusable library component.
 
@@ -155,8 +160,9 @@ behavior; testing against realistic dependencies ensures implementations work in
 
 ## Additional Constraints (Technology & Quality Standards)
 
-- The primary implementation language is Python; libraries MUST target a supported,
-  documented Python version declared in the implementation plan.
+- The implementation language is NOT constrained by this constitution; the implementation plan
+  MUST declare the chosen language(s) and their supported, documented versions. Coding tasks
+  presented to learners are language-agnostic and MAY be solved in any language.
 - Every library MUST ship with documentation describing its purpose, CLI usage, and
   supported input/output formats (including the JSON schema where applicable).
 - Structured logging and machine-readable (JSON) output are REQUIRED wherever a library
@@ -192,4 +198,4 @@ with an article herein, the article prevails.
   articles. Complexity MUST be justified in the plan's Complexity Tracking section. Use the
   Spec Kit templates and the agent guidance file (`CLAUDE.md`) for runtime development guidance.
 
-**Version**: 1.0.0 | **Ratified**: 2026-06-20 | **Last Amended**: 2026-06-20
+**Version**: 1.1.0 | **Ratified**: 2026-06-20 | **Last Amended**: 2026-06-21

@@ -53,7 +53,7 @@ export function buildPrompt(input: WeaveQuestInput): string {
     .map((t) => `- Mission ${t.order} (${t.kind}): ${t.title} — ${t.statement}`)
     .join('\n');
   return [
-    `You are a narrative designer for a Python coding quest. Theme: "${input.theme}". Learner level: ${input.level}.`,
+    `You are a narrative designer for a coding quest. Theme: "${input.theme}". Learner level: ${input.level}.`,
     `Write a single coherent storyline that connects these four missions in order. Keep it appropriate for a learning context.`,
     `Do NOT change, restate, or solve the tasks — only provide narrative framing.`,
     `Return questIntro (overall hook) and one storyFraming per mission, aligned to the mission orders below:`,

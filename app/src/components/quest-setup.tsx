@@ -13,17 +13,17 @@ export function QuestSetup(props: {
 
   return (
     <div className="panel">
-      <h1>Python Quest Generator</h1>
+      <h1>Coding Quest Generator</h1>
       <p className="muted">Pick a universe and your level. We&apos;ll weave four coding missions into one story.</p>
 
       <label htmlFor="theme">Choose a universe / theme</label>
       <input id="theme" type="text" data-testid="theme-input" value={theme} onChange={(e) => setTheme(e.target.value)} />
 
-      <label htmlFor="level">Python level</label>
+      <label htmlFor="level">Skill level</label>
       <select id="level" data-testid="level-select" value={level} onChange={(e) => setLevel(e.target.value as Level)}>
         <option value="beginner">Beginner</option>
         <option value="intermediate">Intermediate</option>
-        <option value="advanced">Advanced</option>
+        <option value="expert">Expert</option>
       </select>
 
       <button data-testid="generate" disabled={props.busy} onClick={() => props.onGenerate(theme, level)}>

@@ -1,6 +1,6 @@
 import { getApps, initializeApp } from 'firebase-admin/app';
 import { getFirestore, type Firestore } from 'firebase-admin/firestore';
-import { SessionSchema, TaskSchema, type Level, type Session, type Task } from './model/index';
+import { SessionSchema, TaskSchema, type Session, type Task } from './model/index';
 
 /**
  * Firestore access for the `tasks` catalog (read) and `sessions` (read/write).
@@ -27,16 +27,25 @@ const TASKS = 'tasks';
 const SESSIONS = 'sessions';
 
 export interface QuestStore {
-  getTasksByLevel(level: Level): Promise<Task[]>;
+  /** All ready tasks (selection ranks these by complexity and splits into tiers). */
+  getReadyTasks(): Promise<Task[]>;
+  /** A single task by its public id (used to load solverSource/testGenSource for grading). */
+  getTask(taskId: string): Promise<Task | null>;
   getSession(sessionId: string): Promise<Session | null>;
   saveSession(session: Session): Promise<void>;
 }
 
 export function createStore(db: Firestore = getDb()): QuestStore {
   return {
-    async getTasksByLevel(level) {
-      const snap = await db.collection(TASKS).where('level', '==', level).get();
+    async getReadyTasks() {
+      const snap = await db.collection(TASKS).where('ready', '==', true).get();
       return snap.docs.map((d) => TaskSchema.parse({ id: d.id, ...d.data() }));
+    },
+
+    async getTask(taskId) {
+      const doc = await db.collection(TASKS).doc(taskId).get();
+      if (!doc.exists) return null;
+      return TaskSchema.parse({ id: doc.id, ...doc.data() });
     },
 
     async getSession(sessionId) {

@@ -1,7 +1,8 @@
-# Python Quest Generator
+# Coding Quest Generator
 
-Turn a chosen **universe/theme** and **Python level** into a four-mission coding quest, woven
+Turn a chosen **universe/theme** and **skill level** into a four-mission coding quest, woven
 into a single AI-generated storyline. Solve the missions, deploy your work to GitHub, and win.
+Tasks are language-agnostic — solve them in any language.
 
 Built with Spec-Driven Development (see [`specs/`](./specs) and the project
 [constitution](./.specify/memory/constitution.md)). The interactive prototype that inspired it
@@ -9,14 +10,14 @@ lives in `kodolom/` (local reference only, not part of this repo).
 
 ## How it works
 
-1. **Choose** a theme (e.g. _"alien invasion"_, _"cyberpunk heist"_) and a Python level
+1. **Choose** a theme (e.g. _"alien invasion"_, _"cyberpunk heist"_) and a skill level
    (beginner / intermediate / advanced).
 2. The app **selects four tasks** — three real coding problems from a Firestore catalog matched
    to your level, plus a final deployment mission.
 3. **Genkit (Gemini 2.5 Flash)** weaves the four tasks into one coherent storyline. The model
    only writes narrative framing; it never alters the task statements or grading.
-4. You **solve** each coding mission: the app shows generated input, you run your own Python and
-   submit the output, which is compared to the correct output (no learner code is executed).
+4. You **solve** each coding mission: the app shows generated input, you run your own code (in any
+   language) and submit the output, which is compared to the correct output (no learner code is executed).
 5. The final mission is to **deploy to a public GitHub repository** whose README lists the
    quest's task ids. When verified, you win.
 

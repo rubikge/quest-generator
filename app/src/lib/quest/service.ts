@@ -2,8 +2,7 @@ import { type Level, type Progress, type Quest, type Session, type Theme, ThemeS
 import { type QuestStore } from './store';
 import { selectQuestTasks } from './task-selection/index';
 import { assembleQuest, type QuestNarrative } from './assemble';
-import { gradeMission } from './grading/index';
-import { getSolver, hasSolver } from './tasks/registry';
+import { gradeMission, buildBattery } from './grading/index';
 import { verifyDeployment as verifyRepo } from './github-verify/index';
 
 /**
@@ -41,8 +40,8 @@ export async function generateQuest(
   deps: ServiceDeps,
 ): Promise<GenerateQuestResult> {
   const theme = ThemeSchema.parse(input.theme);
-  const tasks = await deps.store.getTasksByLevel(input.level);
-  const selection = selectQuestTasks({ tasks, level: input.level, hasSolver });
+  const tasks = await deps.store.getReadyTasks();
+  const selection = selectQuestTasks({ tasks, level: input.level });
 
   if (!selection.ok) {
     return {
@@ -83,7 +82,7 @@ export async function generateQuest(
 }
 
 // ---------------------------------------------------------------------------
-// getMissionInput (US2) — generate + persist the input for a coding mission
+// getMissionInput (US2/US3) — generate + persist the test battery for a coding mission
 // ---------------------------------------------------------------------------
 
 export async function getMissionInput(
@@ -92,15 +91,20 @@ export async function getMissionInput(
 ): Promise<{ ok: true; input: string } | { ok: false; code: 'NOT_FOUND'; message: string }> {
   const session = await deps.store.getSession(input.sessionId);
   const mission = session?.quest?.missions.find((m) => m.order === input.missionOrder);
-  if (!session || !mission || mission.kind !== 'coding' || !mission.solverKey) {
+  if (!session || !mission || mission.kind !== 'coding' || !mission.taskId) {
     return { ok: false, code: 'NOT_FOUND', message: 'Mission not found.' };
   }
   const existing = session.missionInputs?.[String(input.missionOrder)];
   if (existing) return { ok: true, input: existing };
 
-  const solver = getSolver(mission.solverKey);
-  if (!solver) return { ok: false, code: 'NOT_FOUND', message: 'Mission solver unavailable.' };
-  const generated = solver.generateInput();
+  const task = await deps.store.getTask(mission.taskId);
+  if (!task) return { ok: false, code: 'NOT_FOUND', message: 'Mission task unavailable.' };
+
+  // Generate the ≥30-case battery via the task's sandboxed test generator (research R5).
+  const built = buildBattery(task.testGenSource);
+  if (!built.ok) return { ok: false, code: 'NOT_FOUND', message: 'Could not generate mission input.' };
+
+  const generated = built.battery.inputBlock;
   const next: Session = {
     ...session,
     missionInputs: { ...(session.missionInputs ?? {}), [String(input.missionOrder)]: generated },
@@ -111,7 +115,7 @@ export async function getMissionInput(
 }
 
 // ---------------------------------------------------------------------------
-// verifySolution (US2)
+// verifySolution (US2/US3)
 // ---------------------------------------------------------------------------
 
 export type VerifySolutionResult =
@@ -124,7 +128,7 @@ export async function verifySolution(
 ): Promise<VerifySolutionResult> {
   const session = await deps.store.getSession(input.sessionId);
   const mission = session?.quest?.missions.find((m) => m.order === input.missionOrder);
-  if (!session || !mission || mission.kind !== 'coding' || !mission.solverKey) {
+  if (!session || !mission || mission.kind !== 'coding' || !mission.taskId) {
     return { ok: false, code: 'NOT_FOUND', message: 'Mission not found.' };
   }
   if (session.progress.currentMission !== input.missionOrder) {
@@ -135,8 +139,15 @@ export async function verifySolution(
     return { ok: false, code: 'NO_INPUT', message: 'Request the mission input before submitting.' };
   }
 
-  const { correct } = gradeMission({ solverKey: mission.solverKey, input: missionInput, submitted: input.output }, { getSolver });
-  if (!correct) {
+  const task = await deps.store.getTask(mission.taskId);
+  if (!task) return { ok: false, code: 'NOT_FOUND', message: 'Mission task unavailable.' };
+
+  // Grade against the full battery: run the task's sandboxed solver over the persisted input.
+  const graded = gradeMission({ solverSource: task.solverSource, input: missionInput, submitted: input.output });
+  if ('error' in graded) {
+    return { ok: true, correct: false, message: 'Could not evaluate your output (the reference solver failed). Try again.', progress: session.progress };
+  }
+  if (!graded.correct) {
     return { ok: true, correct: false, message: 'Incorrect output — the signal stays encrypted. Try again.', progress: session.progress };
   }
 
@@ -151,7 +162,7 @@ export async function verifySolution(
 }
 
 // ---------------------------------------------------------------------------
-// verifyDeployment (US3)
+// verifyDeployment (US4)
 // ---------------------------------------------------------------------------
 
 export type VerifyDeploymentResult =

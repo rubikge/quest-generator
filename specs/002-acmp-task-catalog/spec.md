@@ -17,6 +17,11 @@
 - Q: How should the learner's submitted output be compared to the expected output? → A: Whitespace-tolerant — trim trailing whitespace per line and at the end; otherwise exact.
 - Q: Before an imported task is marked ready, how is the stored reference solution's correctness validated? → A: It must reproduce ACMP's published worked example(s) AND be confirmed by a curator before the task goes live.
 
+### Session 2026-06-21 (post-analysis)
+
+- Q: Is this a "Python" product? → A: No. The platform and the tasks are language-agnostic — coding tasks may be solved in any language. The word "Python" is removed from the project and the constitution (the constitution's language mandate was removed in v1.1.0).
+- Q: How are each task's solution algorithm and test-generation algorithm stored? → A: Both are stored as code **in the database** (per task) and executed in an isolated sandbox, so the catalog scales by adding rows. The platform still never executes the *learner's* code.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Populate the task catalog from the ACMP source (Priority: P1)
@@ -65,8 +70,9 @@ normal and edge conditions.
 ### User Story 2 - Select tasks by chosen difficulty tier (Priority: P2)
 
 When a learner chooses a level — beginner, intermediate, or expert — the application ranks all
-available tasks by difficulty, divides them into three equal parts (lowest third, middle third,
-highest third), and chooses three tasks at random from the part that matches the chosen level.
+available tasks by difficulty, divides them into three contiguous tiers (lowest, middle, and highest
+third — as equal in size as possible), and chooses three tasks at random from the tier that matches
+the chosen level.
 Those three tasks are the coding content embedded into the learner's quest.
 
 **Why this priority**: This turns the static catalog into a personalized, level-appropriate quest.
@@ -157,6 +163,10 @@ and confirm it does not.
   there are not enough tasks for that level instead of receiving an incomplete quest.
 - What happens when a task's generated test battery cannot reach thirty distinct cases? The task is
   flagged as not ready for use rather than being offered with too-weak validation.
+- What happens when a stored solution or test-generation algorithm errors, loops, or exceeds its
+  sandbox time/resource limits? Execution is aborted by the sandbox and the task is flagged not
+  ready (during import) or the grading attempt fails safely with a clear message (at play time),
+  never affecting other tasks, learners, or the platform.
 - How does the system handle an illustration that is referenced but missing or corrupt? The task
   still displays its text content and the missing illustration is reported, not shown broken.
 - What happens when translation into the learner's request language is unavailable? The learner
@@ -181,22 +191,33 @@ and confirm it does not.
   requirements, examples) in English, translating from the source language during import.
 - **FR-005**: The system MUST store and retrieve task illustrations so they can be displayed
   alongside the task; tasks without illustrations MUST be fully usable.
-- **FR-006**: For each imported task the system MUST store the means to determine the correct
-  output for any valid input to that task (the reference solution algorithm). A task MUST be marked
-  ready for use only after its reference solution reproduces the task's published worked example(s)
-  AND a curator confirms it; tasks failing either check are flagged not ready, not offered in quests.
-- **FR-007**: For each imported task the system MUST store the means to generate at least thirty
-  distinct test cases that cover both typical inputs and edge cases (the test-generation algorithm).
-- **FR-008**: The system MUST record each task's ACMP difficulty value and use it as the ranking
-  key for difficulty-based selection.
+- **FR-006**: For each imported task the system MUST store, **in the database**, the reference
+  solution algorithm as code that maps any valid input to the correct output. A task MUST be marked
+  ready for use only after its stored reference solution reproduces the task's published worked
+  example(s) AND a curator confirms it; tasks failing either check are flagged not ready, not
+  offered in quests.
+- **FR-007**: For each imported task the system MUST store, **in the database**, the
+  test-generation algorithm as code that produces at least thirty distinct test cases covering
+  positive, negative, and edge conditions (each case labeled by category).
+- **FR-007a**: The system MUST execute the stored reference solution and test-generation algorithms
+  in an isolated sandbox with time and resource limits, such that a task's code cannot affect other
+  tasks, other learners, or the platform. An algorithm that fails to execute or exceeds its limits
+  causes the task to be flagged not ready. (This concerns curated, stored task code only; the
+  learner's own code is still never executed — output comparison only.)
+- **FR-007b**: Storing tasks (including their solution and test-generation code) MUST be a pure data
+  operation, so that adding arbitrarily many tasks requires no code deployment, and a stored task's
+  solution and tests MUST be retrievable for execution at selection/grading time.
+- **FR-008**: The system MUST record each task's **ACMP complexity score** (its difficulty value;
+  "complexity" is the canonical term used throughout) and use it as the ranking key for
+  difficulty-tier selection.
 - **FR-009**: When a learner chooses a level, the system MUST rank all available tasks by difficulty
-  and divide them into three parts (lowest, middle, highest third) deterministically, with every
-  task assigned to exactly one part.
+  and divide them into three contiguous tiers (lowest, middle, highest third — as equal in size as
+  possible) deterministically, with every task assigned to exactly one tier.
 - **FR-010**: The system MUST map beginner → lowest third, intermediate → middle third, and
   expert → highest third.
-- **FR-011**: The system MUST select three tasks at random from the part matching the chosen level
+- **FR-011**: The system MUST select three tasks at random from the tier matching the chosen level
   to embed into the quest, and repeated selections at the same level MAY differ.
-- **FR-012**: The system MUST inform the learner when the matching difficulty part contains fewer
+- **FR-012**: The system MUST inform the learner when the matching difficulty tier contains fewer
   than three tasks, rather than producing an incomplete quest.
 - **FR-013**: The system MUST display a task completely: its statement, any illustrations, its
   input/output examples, and its input and output data requirements.
@@ -225,16 +246,17 @@ and confirm it does not.
 
 - **Task (catalog entry)**: A real coding problem ported from ACMP. Holds the canonical English
   title and statement, input/output data requirements, worked input/output examples, illustrations
-  (zero or more), the ACMP difficulty value, the original source URL, the reference solution
-  (means of computing the correct output for any input), and the test-generation algorithm
-  (producing ≥30 varied/edge-case tests). Source of truth for quest content.
+  (zero or more), the ACMP complexity score, the original source URL, a readiness flag, and — stored
+  as code in the database — the reference solution algorithm and the test-generation algorithm
+  (producing ≥30 labeled positive/negative/edge tests). Source of truth for quest content; both
+  stored algorithms are executed only inside an isolated sandbox.
 - **Illustration (image asset)**: A stored image belonging to a task, retrievable for display
   alongside the task's text.
 - **Test Case**: A single (input, expected-output) pair produced by a task's test-generation
   algorithm; a task has at least thirty, spanning typical and edge conditions.
 - **Difficulty Tier**: The classification (lowest / middle / highest third) derived by ranking all
-  available tasks by their ACMP difficulty and splitting into three equal parts; maps to the
-  beginner / intermediate / expert levels.
+  available tasks by their ACMP complexity and splitting into three contiguous tiers (as equal in
+  size as possible); maps to the beginner / intermediate / expert levels.
 - **Quest Task Selection**: The set of three tasks chosen at random from the tier matching the
   learner's chosen level, embedded into a quest.
 
@@ -272,10 +294,14 @@ and confirm it does not.
   generation, the task content is rewritten into the language auto-detected from the learner's
   theme/request (English fallback) and wrapped in the chosen theme; identical wording across runs is
   not required.
-- Grading uses the stored reference solution to compute the correct outputs for the task's ≥30
-  generated test cases; the learner is provided those inputs and is graded correct only if their
-  output matches for all of them (whitespace-tolerant comparison per FR-020). The platform still
-  does not execute the learner's own code (output comparison only), consistent with feature 001.
+- Grading runs the task's database-stored reference solution (in an isolated sandbox) to compute the
+  correct outputs for the task's ≥30 generated test cases; the learner is provided those inputs and
+  is graded correct only if their output matches for all of them (whitespace-tolerant comparison per
+  FR-020). The platform still does not execute the learner's own code (output comparison only),
+  consistent with feature 001 — only curated, stored task algorithms run, and only sandboxed.
+- The catalog is data-driven: a task — including its solution and test-generation code — is added by
+  writing a database record, requiring no code deployment, so the catalog scales to arbitrarily many
+  tasks (this supersedes any earlier notion of code-resident, per-task solver functions).
 - Difficulty ranking uses ACMP's own per-task complexity value; ties are broken deterministically so
   the three-way split is stable and every task lands in exactly one tier.
 - The three-way split is recomputed over all available tasks at selection time, so adding tasks later
