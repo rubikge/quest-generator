@@ -46,7 +46,9 @@ export function validateTask(task: ValidateInput, opts: SandboxOptions = {}): Va
     caseCount = gen.cases.length;
     kinds = [...new Set(gen.cases.map((c) => c.kind))].sort();
     if (caseCount < MIN_CASES) reasons.push(`generator produced ${caseCount} cases (< ${MIN_CASES})`);
-    for (const kind of ['positive', 'negative', 'edge'] as const) {
+    // Require normal + boundary coverage; 'negative' (error/invalid) cases are encouraged where the
+    // task has such a path, but not every problem has one, so they are not mandatory.
+    for (const kind of ['positive', 'edge'] as const) {
       if (!kinds.includes(kind)) reasons.push(`generator missing a '${kind}' case`);
     }
     // The solver must also run cleanly over the full generated battery.

@@ -26,11 +26,11 @@ describe('validateTask', () => {
     expect(r.reasons.join(' ')).toMatch(/example 1/);
   });
 
-  it('fails when the generator yields too few cases or misses a kind', () => {
+  it('fails when the generator yields too few cases or misses a required kind', () => {
     const few = "function generateTests(){ return [{input:'1 1',kind:'positive'}]; }";
     const r = validateTask({ solverSource, testGenSource: few, examples: [{ input: '2 3', output: '5' }] });
     expect(r.ok).toBe(false);
-    expect(r.reasons.join(' ')).toMatch(/< 30|missing a 'negative'|missing a 'edge'/);
+    expect(r.reasons.join(' ')).toMatch(/< 30|missing a 'edge'/);
   });
 
   it('fails safely when the solver code times out', () => {

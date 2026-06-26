@@ -79,7 +79,7 @@ examples and yield ≥30 labeled cases.
 - [X] T014 [P] [US1] `translateTask` tests (stubbed Genkit) in `app/tests/unit/acmp-translate.test.ts`: title/statement/io → English, numbers/identifiers preserved, `examples` verbatim
 - [X] T015 [P] [US1] `downloadImages` tests in `app/tests/unit/acmp-assets.test.ts`: writes `public/tasks/<id>/`, returns relative paths; no-image task → `[]`
 - [X] T016 [P] [US1] `validateTask` tests (real sandbox) in `app/tests/unit/acmp-validate.test.ts`: passes only when stored `solverSource` reproduces every example AND `testGenSource` yields ≥30 cases incl. ≥1 each of positive/negative/edge; a timing-out/erroring algorithm fails validation (FR-006/007/007a)
-- [ ] T017 [P] [US1] Upsert integration in `app/tests/integration/acmp-upsert.test.ts` (emulator): `upsertTask` keys by `taskId` (re-import → one doc), writes `ready:false`, `markReady` only after `validateTask` ok; non-ready excluded from `getReadyTasks()`
+- [X] T017 [P] [US1] Upsert integration in `app/tests/integration/acmp-upsert.test.ts` (emulator): `upsertTask` keys by `taskId` (re-import → one doc), writes `ready:false`, `markReady` only after `validateTask` ok; non-ready excluded from `getReadyTasks()`
 
 ### Implementation for User Story 1
 
@@ -87,12 +87,12 @@ examples and yield ≥30 labeled cases.
 - [X] T019 [US1] Implement `parseTaskPage(html, id)` in `app/src/lib/quest/acmp-import/parse.ts` — make T013 pass
 - [X] T020 [US1] Implement `translateTask(parsed, ai)` in `app/src/lib/quest/acmp-import/translate.ts` (Genkit, preserving prompt) — make T014 pass
 - [X] T021 [US1] Implement `downloadImages(parsed, fetch, fsRoot)` in `app/src/lib/quest/acmp-import/assets.ts` — make T015 pass
-- [ ] T022 [US1] Author the reference solution + test-generation **code** (`solverSource`/`testGenSource`, ≥30 labeled cases) for the 10 curated tasks in `app/src/lib/quest/acmp-import/authored/` (JS sources loaded into each task document)
+- [X] T022 [US1] Author the reference solution + test-generation **code** (`solverSource`/`testGenSource`, ≥30 labeled cases) for the 10 curated tasks in `app/src/lib/quest/acmp-import/authored/` (JS sources loaded into each task document)
 - [X] T023 [US1] Implement `authorAlgorithms` + `validateTask` (runs code via the sandbox) in `app/src/lib/quest/acmp-import/validate.ts` — make T016 pass
-- [ ] T024 [US1] Implement `upsertTask`/`markReady` in `app/src/lib/quest/acmp-import/upsert.ts` (doc id = `taskId`, `ready:false` default, `markReady` requires `validateTask` ok) — make T017 pass
-- [ ] T025 [US1] Implement the import orchestrator (fetch→parse→translate→assets→attach code→validate→upsert, with per-task skip/flag) in `app/src/lib/quest/acmp-import/index.ts`
-- [ ] T026 [US1] Implement the import CLI in `app/src/lib/quest/acmp-import/cli.ts` (`--ids`, `--dry-run --json`, `--mark-ready`; JSON summary to stdout, errors to stderr)
-- [ ] T027 [US1] Execute the porting: run the import for the curated 10 ids against the emulator, curator-review, `--mark-ready` each, and commit illustrations under `app/public/tasks/<id>/` (FR-002/SC-001/SC-002)
+- [X] T024 [US1] Implement `upsertTask`/`markReady` in `app/src/lib/quest/acmp-import/upsert.ts` (doc id = `taskId`, `ready:false` default, `markReady` requires `validateTask` ok) — make T017 pass
+- [X] T025 [US1] Implement the import orchestrator (fetch→parse→translate→assets→attach code→validate→upsert, with per-task skip/flag) in `app/src/lib/quest/acmp-import/index.ts`
+- [X] T026 [US1] Implement the import CLI in `app/src/lib/quest/acmp-import/cli.ts` (`--ids`, `--dry-run --json`, `--mark-ready`; JSON summary to stdout, errors to stderr)
+- [X] T027 [US1] Execute the porting: run the import for the curated 10 ids against the emulator, curator-review, `--mark-ready` each, and commit illustrations under `app/public/tasks/<id>/` (FR-002/SC-001/SC-002)
 
 **Checkpoint**: A real, ready, data-driven ACMP catalog (solution+tests as code) exists.
 

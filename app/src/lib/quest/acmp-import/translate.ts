@@ -52,7 +52,8 @@ export async function translateTask(parsed: ParsedTask, translate: Translator): 
  * constraint, and to translate prose only (not the examples). Imported lazily so the unit suite
  * never loads Genkit.
  */
-export function makeGenkitTranslator(ai: { generate: (opts: unknown) => Promise<{ output?: ProseFields | null; text?: string }> }, z: typeof import('zod').z): Translator {
+// `ai` is the Genkit instance; typed loosely to avoid coupling to Genkit's overloaded generate().
+export function makeGenkitTranslator(ai: { generate: (opts: any) => Promise<any> }, z: typeof import('zod').z): Translator {
   const schema = z.object({
     title: z.string(),
     statement: z.string(),
