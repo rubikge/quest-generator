@@ -78,6 +78,55 @@ describe('TaskSchema', () => {
     expect(() => TaskSchema.parse(validTask())).not.toThrow();
   });
 
+  // FR-001 / SC-001: the structure must be able to hold the ENTIRE ACMP field set for a real,
+  // fully-populated task (statement + I/O format + ≥1 example + images + complexity + stored
+  // solver/test-gen code + source link + readiness), so the whole catalog could be ported into it.
+  it('represents a fully-populated, real-shaped ACMP task (FR-001) with every field present', () => {
+    const realTask = {
+      id: '1',
+      taskId: '1',
+      sourceUrl: 'https://acmp.ru/index.asp?main=task&id_task=1',
+      title: 'Apples',
+      statement:
+        'In a basket there are N apples, which must be divided equally among K schoolchildren ' +
+        'so that none are left over. Each child must get a whole number of apples.',
+      inputFormat: 'Two integers N and K (1 ≤ N, K ≤ 10000), each on its own line.',
+      outputFormat: 'Print "YES" if the apples divide evenly, otherwise "NO".',
+      examples: [
+        { input: '10\n2', output: 'YES' },
+        { input: '10\n3', output: 'NO' },
+      ],
+      images: ['/tasks/1/fig-1.png', '/tasks/1/fig-2.png'],
+      complexity: 6,
+      runtime: 'js' as const,
+      solverSource:
+        'function solve(input){const [n,k]=input.split(/\\s+/).map(Number);return n%k===0?"YES":"NO";}',
+      testGenSource:
+        'function generateTests(){return [{input:"10\\n2",kind:"positive"},{input:"10\\n3",kind:"negative"},{input:"1\\n1",kind:"edge"}];}',
+      ready: true,
+    };
+    const parsed = TaskSchema.parse(realTask);
+    // Every field the ACMP catalog requires round-trips intact.
+    expect(parsed).toMatchObject({
+      id: '1',
+      taskId: '1',
+      sourceUrl: realTask.sourceUrl,
+      title: realTask.title,
+      statement: realTask.statement,
+      inputFormat: realTask.inputFormat,
+      outputFormat: realTask.outputFormat,
+      examples: realTask.examples,
+      images: realTask.images,
+      complexity: 6,
+      runtime: 'js',
+      solverSource: realTask.solverSource,
+      testGenSource: realTask.testGenSource,
+      ready: true,
+    });
+    expect(parsed.examples.length).toBeGreaterThanOrEqual(1);
+    expect(parsed.images.length).toBeGreaterThanOrEqual(1);
+  });
+
   it('defaults images to [] and requires ≥1 example', () => {
     const { images: _images, ...noImages } = validTask();
     expect(TaskSchema.parse(noImages).images).toEqual([]);

@@ -17,17 +17,28 @@ import { liveWeaveQuest } from '../ai/flows/weave-quest';
 const E2E_STUB = process.env.QUEST_E2E_STUB === '1';
 
 const stubWeave: WeaveFn = async ({ tasks }) => ({
+  detectedLanguage: 'en',
   questIntro: 'A storyline unfolds across four missions...',
-  framings: Object.fromEntries(tasks.map((t) => [t.order, `Mission ${t.order}: the story continues.`])) as Record<
-    1 | 2 | 3 | 4,
-    string
-  >,
+  framings: { 1: 'Mission 1: the story continues.', 2: 'Mission 2: the story continues.', 3: 'Mission 3: the story continues.', 4: 'Mission 4: deploy to finish.' },
+  // Keep the canonical English content (no real translation in the e2e stub).
+  localized: Object.fromEntries(
+    tasks.map((t, i) => [
+      (i + 1) as 1 | 2 | 3,
+      { title: t.title, statement: t.statement, inputFormat: t.inputFormat, outputFormat: t.outputFormat },
+    ]),
+  ) as NonNullable<Awaited<ReturnType<WeaveFn>>['localized']>,
 });
 
-// Deterministic README fetch for e2e: pretend the repo lists the beginner task ids.
+// Deterministic README fetch for e2e: pretend the repo's README lists every seeded task id AND a
+// link to each task's original ACMP page (a superset, so whichever 3 tasks the quest picks, the
+// README satisfies both the id check and the source-link check in verifyDeployment).
+const E2E_SEED_IDS = ['1', '2', '3', '4', '6', '7', '9', '10', '11', '24'];
+const stubReadme = () =>
+  `Solved tasks: ${E2E_SEED_IDS.join(', ')}\n\nOriginal tasks:\n` +
+  E2E_SEED_IDS.map((id) => `- https://acmp.ru/index.asp?main=task&id_task=${id}`).join('\n');
 const stubFetch = (async (url: string) =>
   String(url).includes('/main/README.md')
-    ? { ok: true, text: async () => 'Solved tasks: 892, 757, 907' }
+    ? { ok: true, text: async () => stubReadme() }
     : { ok: false, text: async () => '' }) as unknown as typeof fetch;
 
 function deps(): ServiceDeps {

@@ -17,8 +17,7 @@
     "grade": "tsx src/lib/quest/grading/cli.ts",
     "github-verify": "tsx src/lib/quest/github-verify/cli.ts",
     "sandbox:run": "tsx src/lib/quest/sandbox/cli.ts",
-    "import:acmp": "tsx src/lib/quest/acmp-import/cli.ts",
-    "seed": "tsx scripts/seed-tasks.ts"
+    "import:acmp": "tsx src/lib/quest/acmp-import/cli.ts"
   },
   "dependencies": {
     "@genkit-ai/google-genai": "^1.37.0",

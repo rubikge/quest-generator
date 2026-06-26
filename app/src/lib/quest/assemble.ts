@@ -1,10 +1,27 @@
 import { QuestSchema, type Level, type Mission, type Quest, type Task } from './model/index';
 import { CODING_MISSION_COUNT } from './task-selection/index';
 
-/** Narrative produced by the weaveQuest flow: an overall intro plus per-mission framings. */
+/** Localized display prose for one coding mission (model output; presentation only, never grading). */
+export interface MissionLocalization {
+  title: string;
+  statement: string;
+  inputFormat: string;
+  outputFormat: string;
+}
+
+/**
+ * Narrative produced by the weaveQuest flow: the auto-detected language, an overall themed intro,
+ * per-mission story framings, and (US3) the per-coding-mission localized display prose. The
+ * localized prose is OPTIONAL — when absent, assembly falls back to the catalog's canonical English
+ * task fields (so a framing-only narrative still produces a valid, English quest).
+ */
 export interface QuestNarrative {
+  /** BCP-47-ish language auto-detected from the theme; 'en' fallback. */
+  detectedLanguage?: string;
   questIntro: string;
   framings: Record<1 | 2 | 3 | 4, string>;
+  /** Localized title/statement/inputFormat/outputFormat per coding mission order (1..3). */
+  localized?: Partial<Record<1 | 2 | 3, MissionLocalization>>;
 }
 
 export interface AssembleQuestArgs {
@@ -43,15 +60,18 @@ export function assembleQuest(args: AssembleQuestArgs): Quest {
 
   const codingMissions: Mission[] = args.codingTasks.map((task, i) => {
     const order = (i + 1) as 1 | 2 | 3;
+    // Localized display prose (US3) overrides the canonical English ONLY for presentation; the
+    // catalog remains authoritative for examples/images/sourceUrl/taskId and for grading.
+    const loc = args.narrative.localized?.[order];
     return {
       order,
       kind: 'coding',
       taskId: task.taskId,
       sourceUrl: task.sourceUrl,
-      title: task.title,
-      statement: task.statement,
-      inputFormat: task.inputFormat,
-      outputFormat: task.outputFormat,
+      title: loc?.title ?? task.title,
+      statement: loc?.statement ?? task.statement,
+      inputFormat: loc?.inputFormat ?? task.inputFormat,
+      outputFormat: loc?.outputFormat ?? task.outputFormat,
       examples: task.examples,
       images: task.images,
       storyFraming: args.narrative.framings[order],

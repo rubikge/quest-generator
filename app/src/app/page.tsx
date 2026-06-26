@@ -49,6 +49,9 @@ export default function Home() {
     }
   }, [quest, current, currentMission?.kind]);
 
+  // The theme alone drives display-language auto-detection (US3/FR-014): there is no separate
+  // language selector — the weave flow detects the theme's language and localizes the task content,
+  // persisting the result on the session (English fallback).
   async function onGenerate(theme: string, level: Level) {
     setBusy(true);
     setSetupError(null);
