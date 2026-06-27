@@ -181,7 +181,7 @@ original ACMP page (in addition to the task ids).
 - [X] T054 [P] Add a gated live Gemini smoke test (translate+weave) in `app/tests/integration/live-smoke.test.ts` (skipped without an API key)
 - [X] T055 [P] Remove residual dead code: delete `app/scripts/seed-tasks.ts` (its placeholder catalog is superseded by the import) and any remaining `getTasksByLevel` references
 - [X] T056 [P] Update `app/README.md` / docs for the import workflow, sandbox execution, tier selection, the new win condition, and the language-agnostic framing
-- [ ] T057 Run `specs/002-acmp-task-catalog/quickstart.md` end-to-end and fix any drift
+- [X] T057 Run `specs/002-acmp-task-catalog/quickstart.md` end-to-end and fix any drift
 - [X] T058 [P] Verify `firestore.rules`/emulator config match the updated `tasks` (incl. code fields) / `sessions` documents
 
 ---
