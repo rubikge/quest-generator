@@ -1,0 +1,44 @@
+{
+  "name": "quest-generator",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Themed coding quest web app (Next.js + Genkit + Firebase).",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:int": "firebase emulators:exec --only firestore --project demo-quest-generator \"vitest run --config vitest.int.config.ts\"",
+    "test:e2e": "firebase emulators:exec --only firestore --project demo-quest-generator \"playwright test\"",
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start -p 3001",
+    "typecheck": "tsc --noEmit -p tsconfig.core.json",
+    "select": "tsx src/lib/quest/task-selection/cli.ts",
+    "grade": "tsx src/lib/quest/grading/cli.ts",
+    "github-verify": "tsx src/lib/quest/github-verify/cli.ts",
+    "sandbox:run": "tsx src/lib/quest/sandbox/cli.ts",
+    "import:acmp": "tsx src/lib/quest/acmp-import/cli.ts"
+  },
+  "dependencies": {
+    "@genkit-ai/google-genai": "^1.37.0",
+    "dotenv": "^17.4.2",
+    "firebase-admin": "^14.0.0",
+    "genkit": "^1.37.0",
+    "isolated-vm": "^6.1.2",
+    "next": "^16.2.9",
+    "node-html-parser": "^8.0.2",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.0",
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "comment-runtime-deps": "Framework layers (Genkit flow, Firestore store, server actions, Next.js UI) additionally require: next, react, react-dom, @genkit-ai/google-genai, genkit, firebase, and (dev) @playwright/test. These are intentionally not installed in the initial domain-core build; add them when implementing those phases (see specs/001-themed-quest-generation/tasks.md)."
+}

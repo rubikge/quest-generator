@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Build / output
+dist/
+build/
+.next/
+out/
+coverage/
+
+# Env / secrets
+.env
+.env.local
+.env.*.local
+
+# Next.js generated
+next-env.d.ts
+*.tsbuildinfo
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+
+# Firebase
+.firebase/
+
+# Logs / OS
+*.log
+.DS_Store
